@@ -4,6 +4,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import caseStudyRoutes from "./routes/caseStudyRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
+import offerRoutes from "./routes/offerRoutes.js";
+
 
 
 dotenv.config();
@@ -16,6 +18,7 @@ app.use(express.json());
 
 app.use("/api/case-studies", caseStudyRoutes);
 app.use("/api/clients", clientRoutes);
+app.use("/api/offers", offerRoutes);
 
 // Test route
 app.get("/", (req, res) => {
