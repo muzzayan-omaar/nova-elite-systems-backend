@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import caseStudyRoutes from "./routes/caseStudyRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
 import offerRoutes from "./routes/offerRoutes.js";
+import invoiceRoutes from "./routes/invoiceRoutes.js";
 
 
 
@@ -19,6 +20,7 @@ app.use(express.json());
 app.use("/api/case-studies", caseStudyRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/offers", offerRoutes);
+app.use("/api/invoices", invoiceRoutes);
 
 // Test route
 app.get("/", (req, res) => {
