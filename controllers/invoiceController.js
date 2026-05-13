@@ -1,62 +1,66 @@
 import Invoice from "../models/Invoice.js";
 import PDFDocument from "pdfkit";
 
-export const generateInvoice = async (req, res) => {
+/* CREATE INVOICE */
+export const createInvoice = async (req, res) => {
+  try {
+    const invoice = await Invoice.create(req.body);
+    res.status(201).json(invoice);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/* GET INVOICES */
+export const getInvoices = async (req, res) => {
+  try {
+    const invoices = await Invoice.find();
+    res.json(invoices);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/* DELETE INVOICE */
+export const deleteInvoice = async (req, res) => {
+  try {
+    await Invoice.findByIdAndDelete(req.params.id);
+    res.json({ message: "Invoice deleted" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/* PDF GENERATION */
+export const downloadInvoicePDF = async (req, res) => {
   try {
     const invoice = await Invoice.findById(req.params.id);
 
     const doc = new PDFDocument();
 
-    doc.text(`Tax: $${invoice.tax}`);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename=invoice-${invoice._id}.pdf`
+    );
 
-    doc
-      .fontSize(16)
-      .fillColor("#2563EB")
-      .text(`Total: $${invoice.total}`);
+    doc.pipe(res);
 
-    doc.moveDown(2);
+    doc.fontSize(20).text("INVOICE", { align: "center" });
+    doc.moveDown();
 
-    /* PAYMENT */
+    doc.fontSize(12).text(`Tax: $${invoice.tax}`);
+    doc.text(`Total: $${invoice.total}`);
+    doc.moveDown();
 
-    doc
-      .fontSize(15)
-      .fillColor("#2563EB")
-      .text("Payment Information");
-
-    doc.moveDown(1);
-
-    doc
-      .fontSize(11)
-      .fillColor("black")
-      .text(`Payment Method: ${invoice.paymentMethod}`);
-
-    doc.text(`Bank Name: ${invoice.bankName}`);
-
+    doc.fontSize(14).text("Payment Information");
+    doc.fontSize(11).text(`Method: ${invoice.paymentMethod}`);
+    doc.text(`Bank: ${invoice.bankName}`);
     doc.text(`Account Name: ${invoice.accountName}`);
-
     doc.text(`Account Number: ${invoice.accountNumber}`);
 
-    doc.moveDown(3);
-
-    /* SIGNATURE */
-
-    doc.text("____________________________");
-
-    doc
-      .fontSize(12)
-      .fillColor("black")
-      .text("Mirembe Joan");
-
-    doc
-      .fontSize(10)
-      .fillColor("gray")
-      .text("Sales Manager");
-
     doc.end();
-
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 };
