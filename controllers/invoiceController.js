@@ -145,13 +145,13 @@ export const downloadInvoicePDF =
         .fillColor("#cbd5e1")
         .fontSize(8.5)
         .text(
-          "Email: novaelitesystems@gmail.com",
+          "Email: support@novaelitesystem.com",
           120,
           78
         );
 
       doc.text(
-        "Phone: +971 58 000 0000",
+        "Phone: +971 524 947 730",
         320,
         78
       );
@@ -342,13 +342,13 @@ export const downloadInvoicePDF =
           );
 
           doc.text(
-            `$${item.price}`,
+            `UGX ${item.price}`,
             405,
             itemY + 3
           );
 
           doc.text(
-            `$${total}`,
+            `UGX ${total}`,
             490,
             itemY + 3
           );
@@ -383,7 +383,7 @@ export const downloadInvoicePDF =
       );
 
       doc.text(
-        `$${invoice.subtotal}`,
+        `UGX ${invoice.subtotal}`,
         500,
         totalsY + 14
       );
@@ -395,7 +395,7 @@ export const downloadInvoicePDF =
       );
 
       doc.text(
-        `$${invoice.tax}`,
+        `UGX ${invoice.tax}`,
         500,
         totalsY + 34
       );
@@ -412,7 +412,7 @@ export const downloadInvoicePDF =
       );
 
       doc.text(
-        `$${invoice.total}`,
+        `UGX ${invoice.total}`,
         485,
         totalsY + 54
       );
@@ -537,7 +537,7 @@ export const downloadInvoicePDF =
         .text(
           "NOVA Elite Systems • Premium Business Solutions",
           0,
-          777,
+          780,
           {
             align: "center",
           }
