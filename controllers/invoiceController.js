@@ -112,7 +112,7 @@ export const downloadInvoicePDF =
       );
 
       if (fs.existsSync(logoPath)) {
-        doc.image(logoPath, 42, 28, {
+        doc.image(logoPath, 42, 22, {
           width: 63,
         });
       }
