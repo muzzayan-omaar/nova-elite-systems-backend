@@ -5,9 +5,12 @@ import PDFDocument from "pdfkit";
 export const createInvoice = async (req, res) => {
   try {
     const invoice = await Invoice.create(req.body);
+
     res.status(201).json(invoice);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
 
@@ -15,40 +18,58 @@ export const createInvoice = async (req, res) => {
 export const getInvoices = async (req, res) => {
   try {
     const invoices = await Invoice.find();
+
     res.json(invoices);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
 
 /* DELETE INVOICE */
-export const deleteInvoice = async (req, res) => {
+export const deleteInvoice = async (
+  req,
+  res
+) => {
   try {
-    await Invoice.findByIdAndDelete(req.params.id);
-    res.json({ message: "Invoice deleted" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-};
-
-/* PDF GENERATION */
-export const downloadInvoicePDF = async (req, res) => {
-  try {
-    const invoice = await Invoice.findById(
+    await Invoice.findByIdAndDelete(
       req.params.id
     );
 
+    res.json({
+      message: "Invoice deleted",
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+};
+
+/* DOWNLOAD PDF */
+export const downloadInvoicePDF = async (
+  req,
+  res
+) => {
+  try {
+    const invoice =
+      await Invoice.findById(
+        req.params.id
+      );
+
     if (!invoice) {
-      return res
-        .status(404)
-        .json({
-          message: "Invoice not found",
-        });
+      return res.status(404).json({
+        message: "Invoice not found",
+      });
     }
 
     const doc = new PDFDocument({
-      margin: 50,
+      margin: 0,
+      size: "A4",
     });
+
+    /* RESPONSE */
 
     res.setHeader(
       "Content-Type",
@@ -62,334 +83,563 @@ export const downloadInvoicePDF = async (req, res) => {
 
     doc.pipe(res);
 
-    /* =========================
-       COLORS
-    ========================= */
+    /* COLORS */
 
-    const navy = "#081225";
-    const blue = "#2563EB";
+    const bg = "#050816";
+    const card = "#0B1220";
+    const primary = "#3B82F6";
+    const cyan = "#06B6D4";
     const white = "#FFFFFF";
-    const gray = "#94A3B8";
-    const light = "#E2E8F0";
+    const gray = "#9CA3AF";
+    const line = "#1F2937";
 
-    /* =========================
-       TOP HEADER
-    ========================= */
+    /* PAGE BG */
+
+    doc.rect(0, 0, 595, 842).fill(bg);
+
+    /* TOP HERO */
 
     doc
-      .rect(0, 0, 650, 140)
-      .fill(navy);
+      .roundedRect(
+        35,
+        35,
+        525,
+        120,
+        24
+      )
+      .fill(card);
+
+    /* BRAND */
 
     doc
       .fillColor(white)
-      .fontSize(28)
       .font("Helvetica-Bold")
+      .fontSize(26)
       .text(
-        "NOVA Elite Systems",
-        50,
-        45
+        "NOVA",
+        60,
+        58
       );
 
     doc
-      .fontSize(11)
+      .fillColor(primary)
+      .text(
+        " Elite Systems",
+        135,
+        58
+      );
+
+    doc
       .fillColor(gray)
+      .font("Helvetica")
+      .fontSize(11)
       .text(
         "Premium digital & infrastructure solutions",
-        50,
-        82
+        60,
+        95
       );
 
-    doc
-      .fontSize(30)
-      .fillColor(blue)
-      .text("INVOICE", 400, 45);
+    /* INVOICE LABEL */
 
     doc
-      .fontSize(14)
-      .fillColor(light)
-      .text(
-        invoice.invoiceNumber,
-        420,
-        85
-      );
-
-    /* =========================
-       BILL TO
-    ========================= */
-
-    doc.y = 180;
-
-    doc
-      .fontSize(11)
-      .fillColor(blue)
-      .font("Helvetica-Bold")
-      .text("BILL TO");
-
-    doc.moveDown(0.8);
-
-    doc
-      .fontSize(18)
-      .fillColor("#111827")
-      .text(invoice.clientName);
-
-    doc
-      .fontSize(11)
       .fillColor(gray)
-      .text(invoice.company || "");
-
-    doc.text(invoice.email || "");
-    doc.text(invoice.phone || "");
-
-    /* =========================
-       INVOICE INFO
-    ========================= */
-
-    doc
-      .fontSize(11)
-      .fillColor(blue)
-      .font("Helvetica-Bold")
-      .text("INVOICE DETAILS", 370, 180);
-
-    doc
-      .fontSize(11)
-      .fillColor("#111827")
-      .font("Helvetica");
-
-    doc.text(
-      `Issue Date: ${invoice.issueDate}`,
-      370,
-      210
-    );
-
-    doc.text(
-      `Due Date: ${invoice.dueDate}`,
-      370,
-      230
-    );
-
-    doc.text(
-      `Status: ${invoice.status}`,
-      370,
-      250
-    );
-
-    /* =========================
-       TABLE HEADER
-    ========================= */
-
-    let tableTop = 320;
-
-    doc
-      .rect(50, tableTop, 500, 30)
-      .fill(navy);
+      .fontSize(10)
+      .text(
+        "OFFICIAL INVOICE",
+        390,
+        58
+      );
 
     doc
       .fillColor(white)
       .font("Helvetica-Bold")
-      .fontSize(10);
+      .fontSize(24)
+      .text(
+        invoice.invoiceNumber,
+        390,
+        78
+      );
+
+    /* STATUS */
+
+    doc
+      .roundedRect(
+        390,
+        115,
+        110,
+        28,
+        10
+      )
+      .fill(primary);
+
+    doc
+      .fillColor(white)
+      .fontSize(10)
+      .font("Helvetica-Bold")
+      .text(
+        invoice.status || "Pending",
+        420,
+        124
+      );
+
+    /* CLIENT CARD */
+
+    doc
+      .roundedRect(
+        35,
+        185,
+        250,
+        155,
+        22
+      )
+      .fill(card);
+
+    doc
+      .fillColor(primary)
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .text(
+        "CLIENT DETAILS",
+        55,
+        210
+      );
+
+    doc
+      .fillColor(white)
+      .fontSize(20)
+      .text(
+        invoice.clientName ||
+          "Client Name",
+        55,
+        238
+      );
+
+    doc
+      .fillColor(gray)
+      .fontSize(11)
+      .font("Helvetica")
+      .text(
+        invoice.company || "-",
+        55,
+        272
+      );
+
+    doc.text(
+      invoice.email || "-",
+      55,
+      292
+    );
+
+    doc.text(
+      invoice.phone || "-",
+      55,
+      312
+    );
+
+    /* INVOICE INFO CARD */
+
+    doc
+      .roundedRect(
+        310,
+        185,
+        250,
+        155,
+        22
+      )
+      .fill(card);
+
+    doc
+      .fillColor(primary)
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .text(
+        "INVOICE DETAILS",
+        330,
+        210
+      );
+
+    const details = [
+      [
+        "Issue Date",
+        invoice.issueDate || "-",
+      ],
+      [
+        "Due Date",
+        invoice.dueDate || "-",
+      ],
+      [
+        "Payment",
+        invoice.paymentMethod ||
+          "-",
+      ],
+      [
+        "Bank",
+        invoice.bankName || "-",
+      ],
+    ];
+
+    let detailY = 245;
+
+    details.forEach((item) => {
+      doc
+        .fillColor(gray)
+        .fontSize(10)
+        .font("Helvetica")
+        .text(
+          item[0],
+          330,
+          detailY
+        );
+
+      doc
+        .fillColor(white)
+        .font("Helvetica-Bold")
+        .fontSize(12)
+        .text(
+          item[1],
+          430,
+          detailY
+        );
+
+      detailY += 26;
+    });
+
+    /* TABLE */
+
+    const tableTop = 390;
+
+    doc
+      .roundedRect(
+        35,
+        tableTop,
+        525,
+        42,
+        14
+      )
+      .fill(primary);
+
+    doc
+      .fillColor(white)
+      .font("Helvetica-Bold")
+      .fontSize(11);
 
     doc.text(
       "SERVICE",
-      60,
-      tableTop + 10
+      55,
+      tableTop + 15
     );
 
     doc.text(
       "QTY",
       330,
-      tableTop + 10
+      tableTop + 15
     );
 
     doc.text(
       "PRICE",
-      390,
-      tableTop + 10
+      395,
+      tableTop + 15
     );
 
     doc.text(
       "TOTAL",
-      470,
-      tableTop + 10
+      485,
+      tableTop + 15
     );
 
-    /* =========================
-       TABLE ROWS
-    ========================= */
+    /* ITEMS */
 
-    let y = tableTop + 30;
+    let y = tableTop + 55;
 
-    invoice.items.forEach((item, index) => {
-      if (index % 2 === 0) {
+    invoice.items.forEach(
+      (item, index) => {
+        const itemTotal =
+          item.qty * item.price;
+
         doc
-          .rect(50, y, 500, 30)
-          .fill("#F8FAFC");
+          .roundedRect(
+            35,
+            y - 8,
+            525,
+            48,
+            14
+          )
+          .fill(
+            index % 2 === 0
+              ? "#0F172A"
+              : "#111827"
+          );
+
+        doc
+          .fillColor(white)
+          .font("Helvetica-Bold")
+          .fontSize(11)
+          .text(
+            item.service ||
+              "Service",
+            55,
+            y + 7
+          );
+
+        doc
+          .fillColor(gray)
+          .font("Helvetica")
+          .fontSize(9)
+          .text(
+            "Premium business solution",
+            55,
+            y + 23
+          );
+
+        doc
+          .fillColor(white)
+          .fontSize(11)
+          .text(
+            String(item.qty),
+            340,
+            y + 15
+          );
+
+        doc.text(
+          `$${item.price}`,
+          395,
+          y + 15
+        );
+
+        doc
+          .fillColor(cyan)
+          .font("Helvetica-Bold")
+          .text(
+            `$${itemTotal}`,
+            485,
+            y + 15
+          );
+
+        y += 58;
       }
-
-      doc
-        .fillColor("#111827")
-        .font("Helvetica")
-        .fontSize(10);
-
-      doc.text(
-        item.service,
-        60,
-        y + 10
-      );
-
-      doc.text(
-        item.qty.toString(),
-        335,
-        y + 10
-      );
-
-      doc.text(
-        `$${item.price}`,
-        390,
-        y + 10
-      );
-
-      doc.text(
-        `$${item.qty * item.price}`,
-        470,
-        y + 10
-      );
-
-      y += 30;
-    });
-
-    /* =========================
-       TOTAL BOX
-    ========================= */
-
-    y += 40;
-
-    doc
-      .roundedRect(340, y, 210, 100, 12)
-      .fill("#EFF6FF");
-
-    doc
-      .fillColor("#111827")
-      .fontSize(11);
-
-    doc.text(
-      `Subtotal: $${invoice.subtotal}`,
-      360,
-      y + 20
     );
 
-    doc.text(
-      `Tax: $${invoice.tax}`,
-      360,
-      y + 45
-    );
+    /* TOTAL CARD */
 
     doc
-      .font("Helvetica-Bold")
-      .fillColor(blue)
-      .fontSize(18)
-      .text(
-        `Total: $${invoice.total}`,
-        360,
-        y + 70
-      );
-
-    /* =========================
-       PAYMENT INFO
-    ========================= */
-
-    y += 150;
+      .roundedRect(
+        340,
+        y + 20,
+        220,
+        120,
+        22
+      )
+      .fill(card);
 
     doc
-      .font("Helvetica-Bold")
-      .fontSize(12)
-      .fillColor(blue)
-      .text("PAYMENT INFORMATION", 50, y);
-
-    y += 25;
-
-    doc
+      .fillColor(gray)
       .font("Helvetica")
       .fontSize(11)
-      .fillColor("#111827");
+      .text(
+        "Subtotal",
+        365,
+        y + 45
+      );
 
     doc.text(
-      `Method: ${invoice.paymentMethod}`,
-      50,
-      y
+      "Tax",
+      365,
+      y + 70
     );
-
-    doc.text(
-      `Bank: ${invoice.bankName}`,
-      50,
-      y + 20
-    );
-
-    doc.text(
-      `Account Name: ${invoice.accountName}`,
-      50,
-      y + 40
-    );
-
-    doc.text(
-      `Account Number: ${invoice.accountNumber}`,
-      50,
-      y + 60
-    );
-
-    /* =========================
-       SIGNATURE
-    ========================= */
 
     doc
-      .font("Helvetica-Oblique")
-      .fontSize(24)
-      .fillColor("#111827")
+      .fillColor(white)
+      .font("Helvetica-Bold")
+      .fontSize(13)
       .text(
-        "Mirembe Joan",
-        380,
-        y + 30
+        `$${invoice.subtotal}`,
+        490,
+        y + 45
+      );
+
+    doc.text(
+      `$${invoice.tax}`,
+      490,
+      y + 70
+    );
+
+    doc
+      .moveTo(360, y + 100)
+      .lineTo(540, y + 100)
+      .stroke(line);
+
+    doc
+      .fillColor(primary)
+      .fontSize(20)
+      .text(
+        `$${invoice.total}`,
+        465,
+        y + 110
       );
 
     doc
-      .moveTo(360, y + 70)
-      .lineTo(540, y + 70)
-      .strokeColor("#CBD5E1")
-      .stroke();
+      .fillColor(gray)
+      .fontSize(10)
+      .font("Helvetica")
+      .text(
+        "TOTAL",
+        365,
+        y + 115
+      );
+
+    /* PAYMENT SECTION */
+
+    const paymentY = y + 180;
 
     doc
+      .roundedRect(
+        35,
+        paymentY,
+        260,
+        135,
+        22
+      )
+      .fill(card);
+
+    doc
+      .fillColor(primary)
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .text(
+        "PAYMENT INFORMATION",
+        55,
+        paymentY + 24
+      );
+
+    const paymentDetails = [
+      [
+        "Account Name",
+        invoice.accountName ||
+          "-",
+      ],
+      [
+        "Account Number",
+        invoice.accountNumber ||
+          "-",
+      ],
+      [
+        "Bank",
+        invoice.bankName || "-",
+      ],
+    ];
+
+    let py = paymentY + 55;
+
+    paymentDetails.forEach((item) => {
+      doc
+        .fillColor(gray)
+        .font("Helvetica")
+        .fontSize(10)
+        .text(
+          item[0],
+          55,
+          py
+        );
+
+      doc
+        .fillColor(white)
+        .font("Helvetica-Bold")
+        .fontSize(11)
+        .text(
+          item[1],
+          55,
+          py + 14
+        );
+
+      py += 36;
+    });
+
+    /* NOTES */
+
+    doc
+      .roundedRect(
+        315,
+        paymentY,
+        245,
+        135,
+        22
+      )
+      .fill(card);
+
+    doc
+      .fillColor(primary)
+      .font("Helvetica-Bold")
+      .fontSize(12)
+      .text(
+        "NOTES",
+        335,
+        paymentY + 24
+      );
+
+    doc
+      .fillColor(gray)
       .font("Helvetica")
       .fontSize(10)
+      .text(
+        invoice.notes ||
+          "Thank you for choosing NOVA Elite Systems.",
+        335,
+        paymentY + 55,
+        {
+          width: 190,
+          lineGap: 4,
+        }
+      );
+
+    /* SIGNATURE */
+
+    const sigY = 760;
+
+    doc
+      .moveTo(370, sigY)
+      .lineTo(530, sigY)
+      .stroke("#374151");
+
+    doc
+      .fillColor(white)
+      .font("Helvetica-Oblique")
+      .fontSize(20)
+      .text(
+        "Mirembe Joan",
+        385,
+        sigY - 28
+      );
+
+    doc
       .fillColor(gray)
+      .font("Helvetica")
+      .fontSize(10)
       .text(
         "Sales Manager",
         420,
-        y + 80
+        sigY + 10
       );
 
-    /* =========================
-       FOOTER
-    ========================= */
+    /* FOOTER */
 
     doc
-      .fontSize(10)
       .fillColor(gray)
+      .fontSize(9)
       .text(
-        "Thank you for choosing NOVA Elite Systems.",
-        50,
-        760,
+        "NOVA Elite Systems • Premium Digital Solutions",
+        0,
+        815,
         {
           align: "center",
-          width: 500,
         }
       );
 
     doc.end();
-
   } catch (err) {
-    res
-      .status(500)
-      .json({
-        message: err.message,
-      });
+    console.log(err);
+
+    res.status(500).json({
+      message: err.message,
+    });
   }
 };
