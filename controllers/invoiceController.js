@@ -537,7 +537,7 @@ export const downloadInvoicePDF =
         .text(
           "NOVA Elite Systems • Premium Business Solutions",
           0,
-          805,
+          777,
           {
             align: "center",
           }
