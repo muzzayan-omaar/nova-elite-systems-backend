@@ -32,10 +32,7 @@ export const deleteInvoice = async (req, res) => {
 };
 
 /* PDF GENERATION */
-export const downloadInvoicePDF = async (
-  req,
-  res
-) => {
+export const downloadInvoicePDF = async (req, res) => {
   try {
     const invoice = await Invoice.findById(
       req.params.id
@@ -53,8 +50,6 @@ export const downloadInvoicePDF = async (
       margin: 50,
     });
 
-    /* RESPONSE HEADERS */
-
     res.setHeader(
       "Content-Type",
       "application/pdf"
@@ -67,20 +62,26 @@ export const downloadInvoicePDF = async (
 
     doc.pipe(res);
 
-    /* COLORS */
+    /* =========================
+       COLORS
+    ========================= */
 
-    const primary = "#2563eb";
-    const dark = "#111827";
-    const gray = "#6b7280";
+    const navy = "#081225";
+    const blue = "#2563EB";
+    const white = "#FFFFFF";
+    const gray = "#94A3B8";
+    const light = "#E2E8F0";
 
-    /* TOP HEADER */
+    /* =========================
+       TOP HEADER
+    ========================= */
 
     doc
-      .rect(0, 0, 700, 120)
-      .fill("#0B1220");
+      .rect(0, 0, 650, 140)
+      .fill(navy);
 
     doc
-      .fillColor("white")
+      .fillColor(white)
       .fontSize(28)
       .font("Helvetica-Bold")
       .text(
@@ -90,350 +91,305 @@ export const downloadInvoicePDF = async (
       );
 
     doc
-      .fontSize(12)
-      .fillColor("#9ca3af")
+      .fontSize(11)
+      .fillColor(gray)
       .text(
         "Premium digital & infrastructure solutions",
         50,
-        78
-      );
-
-    /* INVOICE INFO */
-
-    doc
-      .fillColor(primary)
-      .fontSize(24)
-      .font("Helvetica-Bold")
-      .text(
-        "INVOICE",
-        400,
-        45
+        82
       );
 
     doc
-      .fillColor("white")
-      .fontSize(11)
-      .font("Helvetica")
+      .fontSize(30)
+      .fillColor(blue)
+      .text("INVOICE", 400, 45);
+
+    doc
+      .fontSize(14)
+      .fillColor(light)
       .text(
         invoice.invoiceNumber,
-        400,
-        78
+        420,
+        85
       );
 
-    /* CLIENT SECTION */
+    /* =========================
+       BILL TO
+    ========================= */
+
+    doc.y = 180;
 
     doc
-      .fillColor(primary)
-      .fontSize(13)
+      .fontSize(11)
+      .fillColor(blue)
       .font("Helvetica-Bold")
-      .text("Bill To", 50, 150);
+      .text("BILL TO");
+
+    doc.moveDown(0.8);
 
     doc
-      .fillColor(dark)
       .fontSize(18)
-      .text(
-        invoice.clientName || "-",
-        50,
-        172
-      );
+      .fillColor("#111827")
+      .text(invoice.clientName);
 
     doc
+      .fontSize(11)
       .fillColor(gray)
-      .fontSize(11)
-      .text(
-        invoice.company || "",
-        50,
-        198
-      );
+      .text(invoice.company || "");
 
-    doc.text(
-      invoice.email || "",
-      50,
-      215
-    );
+    doc.text(invoice.email || "");
+    doc.text(invoice.phone || "");
 
-    doc.text(
-      invoice.phone || "",
-      50,
-      232
-    );
-
-    /* DATES */
+    /* =========================
+       INVOICE INFO
+    ========================= */
 
     doc
-      .fillColor(primary)
-      .fontSize(13)
+      .fontSize(11)
+      .fillColor(blue)
       .font("Helvetica-Bold")
-      .text(
-        "Invoice Details",
-        400,
-        150
-      );
+      .text("INVOICE DETAILS", 370, 180);
 
     doc
-      .fillColor(dark)
       .fontSize(11)
+      .fillColor("#111827")
       .font("Helvetica");
 
     doc.text(
-      `Issue Date: ${
-        invoice.issueDate || "-"
-      }`,
-      400,
-      180
+      `Issue Date: ${invoice.issueDate}`,
+      370,
+      210
     );
 
     doc.text(
-      `Due Date: ${
-        invoice.dueDate || "-"
-      }`,
-      400,
-      200
+      `Due Date: ${invoice.dueDate}`,
+      370,
+      230
     );
 
     doc.text(
-      `Status: ${
-        invoice.status || "-"
-      }`,
-      400,
-      220
+      `Status: ${invoice.status}`,
+      370,
+      250
     );
 
-    /* TABLE HEADER */
+    /* =========================
+       TABLE HEADER
+    ========================= */
 
-    const tableTop = 300;
+    let tableTop = 320;
 
     doc
-      .rect(50, tableTop, 500, 35)
-      .fill(primary);
+      .rect(50, tableTop, 500, 30)
+      .fill(navy);
 
     doc
-      .fillColor("white")
-      .fontSize(11)
-      .font("Helvetica-Bold");
+      .fillColor(white)
+      .font("Helvetica-Bold")
+      .fontSize(10);
 
     doc.text(
-      "Service",
+      "SERVICE",
       60,
-      tableTop + 11
+      tableTop + 10
     );
 
     doc.text(
-      "Qty",
-      320,
-      tableTop + 11
+      "QTY",
+      330,
+      tableTop + 10
     );
 
     doc.text(
-      "Price",
+      "PRICE",
       390,
-      tableTop + 11
+      tableTop + 10
     );
 
     doc.text(
-      "Total",
+      "TOTAL",
       470,
-      tableTop + 11
+      tableTop + 10
     );
 
-    /* ITEMS */
+    /* =========================
+       TABLE ROWS
+    ========================= */
 
-    let y = tableTop + 40;
+    let y = tableTop + 30;
 
-    invoice.items.forEach((item) => {
-      const itemTotal =
-        item.qty * item.price;
+    invoice.items.forEach((item, index) => {
+      if (index % 2 === 0) {
+        doc
+          .rect(50, y, 500, 30)
+          .fill("#F8FAFC");
+      }
 
       doc
-        .rect(50, y - 5, 500, 30)
-        .stroke("#e5e7eb");
-
-      doc
-        .fillColor(dark)
+        .fillColor("#111827")
         .font("Helvetica")
         .fontSize(10);
 
       doc.text(
-        item.service || "-",
+        item.service,
         60,
-        y + 5
+        y + 10
       );
 
       doc.text(
-        String(item.qty),
-        325,
-        y + 5
+        item.qty.toString(),
+        335,
+        y + 10
       );
 
       doc.text(
         `$${item.price}`,
         390,
-        y + 5
+        y + 10
       );
 
       doc.text(
-        `$${itemTotal}`,
+        `$${item.qty * item.price}`,
         470,
-        y + 5
+        y + 10
       );
 
       y += 30;
     });
 
-    /* TOTALS */
+    /* =========================
+       TOTAL BOX
+    ========================= */
 
     y += 40;
 
     doc
-      .fontSize(11)
-      .fillColor(gray)
-      .text(
-        `Subtotal: $${invoice.subtotal}`,
-        400,
-        y
-      );
+      .roundedRect(340, y, 210, 100, 12)
+      .fill("#EFF6FF");
+
+    doc
+      .fillColor("#111827")
+      .fontSize(11);
 
     doc.text(
-      `Tax: $${invoice.tax}`,
-      400,
+      `Subtotal: $${invoice.subtotal}`,
+      360,
       y + 20
     );
 
+    doc.text(
+      `Tax: $${invoice.tax}`,
+      360,
+      y + 45
+    );
+
     doc
-      .fillColor(primary)
       .font("Helvetica-Bold")
+      .fillColor(blue)
       .fontSize(18)
       .text(
         `Total: $${invoice.total}`,
-        400,
-        y + 50
+        360,
+        y + 70
       );
 
-    /* PAYMENT INFO */
+    /* =========================
+       PAYMENT INFO
+    ========================= */
 
-    y += 120;
+    y += 150;
 
     doc
-      .fillColor(primary)
-      .fontSize(14)
       .font("Helvetica-Bold")
-      .text(
-        "Payment Information",
-        50,
-        y
-      );
+      .fontSize(12)
+      .fillColor(blue)
+      .text("PAYMENT INFORMATION", 50, y);
+
+    y += 25;
 
     doc
-      .fillColor(dark)
+      .font("Helvetica")
       .fontSize(11)
-      .font("Helvetica");
+      .fillColor("#111827");
 
     doc.text(
-      `Method: ${
-        invoice.paymentMethod ||
-        "-"
-      }`,
+      `Method: ${invoice.paymentMethod}`,
       50,
-      y + 30
+      y
     );
 
     doc.text(
-      `Bank: ${
-        invoice.bankName || "-"
-      }`,
+      `Bank: ${invoice.bankName}`,
       50,
-      y + 50
+      y + 20
     );
 
     doc.text(
-      `Account Name: ${
-        invoice.accountName || "-"
-      }`,
+      `Account Name: ${invoice.accountName}`,
       50,
-      y + 70
+      y + 40
     );
 
     doc.text(
-      `Account Number: ${
-        invoice.accountNumber ||
-        "-"
-      }`,
+      `Account Number: ${invoice.accountNumber}`,
       50,
-      y + 90
+      y + 60
     );
 
-    /* NOTES */
-
-    if (invoice.notes) {
-      doc
-        .fillColor(primary)
-        .fontSize(14)
-        .font("Helvetica-Bold")
-        .text("Notes", 320, y);
-
-      doc
-        .fillColor(gray)
-        .fontSize(10)
-        .font("Helvetica")
-        .text(
-          invoice.notes,
-          320,
-          y + 30,
-          {
-            width: 220,
-          }
-        );
-    }
-
-    /* SIGNATURE */
-
-    y += 170;
+    /* =========================
+       SIGNATURE
+    ========================= */
 
     doc
-      .moveTo(380, y)
-      .lineTo(540, y)
-      .stroke("#9ca3af");
-
-    doc
-      .fontSize(18)
       .font("Helvetica-Oblique")
-      .fillColor(dark)
+      .fontSize(24)
+      .fillColor("#111827")
       .text(
         "Mirembe Joan",
-        390,
-        y - 25
+        380,
+        y + 30
       );
 
     doc
+      .moveTo(360, y + 70)
+      .lineTo(540, y + 70)
+      .strokeColor("#CBD5E1")
+      .stroke();
+
+    doc
+      .font("Helvetica")
       .fontSize(10)
       .fillColor(gray)
       .text(
         "Sales Manager",
         420,
-        y + 10
+        y + 80
       );
 
-    /* FOOTER */
+    /* =========================
+       FOOTER
+    ========================= */
 
     doc
-      .fontSize(9)
-      .fillColor("#9ca3af")
+      .fontSize(10)
+      .fillColor(gray)
       .text(
         "Thank you for choosing NOVA Elite Systems.",
         50,
         760,
         {
           align: "center",
+          width: 500,
         }
       );
 
     doc.end();
 
   } catch (err) {
-    console.log(err);
-
-    res.status(500).json({
-      message: err.message,
-    });
+    res
+      .status(500)
+      .json({
+        message: err.message,
+      });
   }
 };
