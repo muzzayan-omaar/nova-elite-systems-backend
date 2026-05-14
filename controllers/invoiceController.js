@@ -108,7 +108,7 @@ export const downloadInvoicePDF =
       const logoPath = path.join(
         process.cwd(),
         "assets",
-        "logo.webp"
+        "logo.png"
       );
 
       if (fs.existsSync(logoPath)) {
