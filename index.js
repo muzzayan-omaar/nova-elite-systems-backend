@@ -6,6 +6,7 @@ import caseStudyRoutes from "./routes/caseStudyRoutes.js";
 import clientRoutes from "./routes/clientRoutes.js";
 import offerRoutes from "./routes/offerRoutes.js";
 import invoiceRoutes from "./routes/invoiceRoutes.js";
+import revenueRoutes from "./routes/revenueRoutes.js";
 
 
 
@@ -21,11 +22,17 @@ app.use("/api/case-studies", caseStudyRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/offers", offerRoutes);
 app.use("/api/invoices", invoiceRoutes);
+app.use(
+  "/api/revenue",
+  revenueRoutes
+);
 
 // Test route
 app.get("/", (req, res) => {
   res.send("API is running...");
 });
+
+
 
 // MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
