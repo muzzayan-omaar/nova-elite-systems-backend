@@ -1,99 +1,130 @@
 import Invoice from "../models/Invoice.js";
 
-/* REVENUE ANALYTICS */
-
 export const getRevenueAnalytics =
   async (req, res) => {
     try {
+      const {
+        from,
+        to,
+        status,
+        client,
+      } = req.query;
+
+      /* FILTER OBJECT */
+
+      let filter = {};
+
+      /* DATE FILTER */
+
+      if (from || to) {
+        filter.issueDate = {};
+
+        if (from) {
+          filter.issueDate.$gte = from;
+        }
+
+        if (to) {
+          filter.issueDate.$lte = to;
+        }
+      }
+
+      /* STATUS FILTER */
+
+      if (status && status !== "All") {
+        filter.status = status;
+      }
+
+      /* CLIENT FILTER */
+
+      if (client) {
+        filter.clientName = {
+          $regex: client,
+          $options: "i",
+        };
+      }
+
+      /* FETCH */
+
       const invoices =
-        await Invoice.find();
+        await Invoice.find(filter);
 
-      /* COUNTS */
-
-      const totalInvoices =
-        invoices.length;
+      /* TOTALS */
 
       const paidInvoices =
         invoices.filter(
-          (inv) =>
-            inv.status === "Paid"
+          (i) =>
+            i.status === "Paid"
         );
 
       const pendingInvoices =
         invoices.filter(
-          (inv) =>
-            inv.status === "Pending"
+          (i) =>
+            i.status === "Pending"
         );
 
       const overdueInvoices =
         invoices.filter(
-          (inv) =>
-            inv.status === "Overdue"
+          (i) =>
+            i.status === "Overdue"
         );
-
-      const cancelledInvoices =
-        invoices.filter(
-          (inv) =>
-            inv.status === "Cancelled"
-        );
-
-      /* TOTALS */
 
       const totalRevenue =
         paidInvoices.reduce(
-          (acc, inv) =>
-            acc + Number(inv.total || 0),
+          (acc, item) =>
+            acc + item.total,
           0
         );
 
       const pendingRevenue =
         pendingInvoices.reduce(
-          (acc, inv) =>
-            acc + Number(inv.total || 0),
+          (acc, item) =>
+            acc + item.total,
           0
         );
 
       const overdueRevenue =
         overdueInvoices.reduce(
-          (acc, inv) =>
-            acc + Number(inv.total || 0),
+          (acc, item) =>
+            acc + item.total,
           0
         );
 
-      /* MONTHLY REVENUE */
+      /* MONTHLY CHART */
 
-      const monthlyRevenue = {};
+      const monthlyMap = {};
 
-      paidInvoices.forEach((inv) => {
-        const date = new Date(
-          inv.issueDate
-        );
-
-        const month =
-          date.toLocaleString(
-            "default",
-            {
-              month: "short",
-            }
+      paidInvoices.forEach(
+        (invoice) => {
+          const date = new Date(
+            invoice.issueDate
           );
 
-        if (!monthlyRevenue[month]) {
-          monthlyRevenue[month] = 0;
-        }
+          const month =
+            date.toLocaleString(
+              "default",
+              {
+                month: "short",
+              }
+            );
 
-        monthlyRevenue[month] +=
-          Number(inv.total || 0);
-      });
+          if (!monthlyMap[month]) {
+            monthlyMap[month] = 0;
+          }
+
+          monthlyMap[month] +=
+            invoice.total;
+        }
+      );
 
       const revenueChartData =
-        Object.entries(
-          monthlyRevenue
-        ).map(([month, revenue]) => ({
-          month,
-          revenue,
-        }));
+        Object.entries(monthlyMap).map(
+          ([month, revenue]) => ({
+            month,
+            revenue,
+          })
+        );
 
-      /* STATUS CHART */
+      /* PIE CHART */
 
       const invoiceStatusData = [
         {
@@ -113,19 +144,13 @@ export const getRevenueAnalytics =
           value:
             overdueInvoices.length,
         },
-
-        {
-          name: "Cancelled",
-          value:
-            cancelledInvoices.length,
-        },
       ];
-
-      /* RESPONSE */
 
       res.json({
         totals: {
-          totalInvoices,
+          totalRevenue,
+          pendingRevenue,
+          overdueRevenue,
 
           paidInvoices:
             paidInvoices.length,
@@ -136,14 +161,8 @@ export const getRevenueAnalytics =
           overdueInvoices:
             overdueInvoices.length,
 
-          cancelledInvoices:
-            cancelledInvoices.length,
-
-          totalRevenue,
-
-          pendingRevenue,
-
-          overdueRevenue,
+          totalInvoices:
+            invoices.length,
         },
 
         revenueChartData,
