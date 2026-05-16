@@ -49,6 +49,35 @@ export const deleteInvoice = async (
   }
 };
 
+export const updateInvoiceStatus =
+  async (req, res) => {
+    try {
+      const invoice =
+        await Invoice.findByIdAndUpdate(
+          req.params.id,
+          {
+            status: req.body.status,
+          },
+          {
+            new: true,
+          }
+        );
+
+      if (!invoice) {
+        return res.status(404).json({
+          message:
+            "Invoice not found",
+        });
+      }
+
+      res.json(invoice);
+    } catch (err) {
+      res.status(500).json({
+        message: err.message,
+      });
+    }
+  };
+
 /* DOWNLOAD PDF */
 export const downloadInvoicePDF =
   async (req, res) => {
