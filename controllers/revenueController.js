@@ -1,4 +1,5 @@
 import Invoice from "../models/Invoice.js";
+import Expense from "../models/Expense.js";
 
 export const getRevenueAnalytics =
   async (req, res) => {
@@ -10,7 +11,9 @@ export const getRevenueAnalytics =
         client,
       } = req.query;
 
-      /* FILTER OBJECT */
+      /* =========================
+         FILTER OBJECT
+      ========================= */
 
       let filter = {};
 
@@ -43,12 +46,19 @@ export const getRevenueAnalytics =
         };
       }
 
-      /* FETCH */
+      /* =========================
+         FETCH DATA
+      ========================= */
 
       const invoices =
         await Invoice.find(filter);
 
-      /* TOTALS */
+      const expenses =
+        await Expense.find();
+
+      /* =========================
+         INVOICE GROUPS
+      ========================= */
 
       const paidInvoices =
         invoices.filter(
@@ -68,28 +78,61 @@ export const getRevenueAnalytics =
             i.status === "Overdue"
         );
 
-      const totalRevenue =
+      /* =========================
+         REVENUE CALCULATIONS
+      ========================= */
+
+      const grossRevenue =
         paidInvoices.reduce(
           (acc, item) =>
-            acc + item.total,
+            acc + Number(item.total || 0),
           0
         );
 
       const pendingRevenue =
         pendingInvoices.reduce(
           (acc, item) =>
-            acc + item.total,
+            acc + Number(item.total || 0),
           0
         );
 
       const overdueRevenue =
         overdueInvoices.reduce(
           (acc, item) =>
-            acc + item.total,
+            acc + Number(item.total || 0),
           0
         );
 
-      /* MONTHLY CHART */
+      /* =========================
+         EXPENSE CALCULATIONS
+      ========================= */
+
+      const totalExpenses =
+        expenses.reduce(
+          (acc, item) =>
+            acc +
+            Number(item.amount || 0),
+          0
+        );
+
+      /* =========================
+         NET PROFIT
+      ========================= */
+
+      const netProfit =
+        grossRevenue -
+        totalExpenses;
+
+      /* =========================
+         BURN RATE
+      ========================= */
+
+      const monthlyBurnRate =
+        totalExpenses / 12;
+
+      /* =========================
+         MONTHLY REVENUE CHART
+      ========================= */
 
       const monthlyMap = {};
 
@@ -112,7 +155,7 @@ export const getRevenueAnalytics =
           }
 
           monthlyMap[month] +=
-            invoice.total;
+            Number(invoice.total || 0);
         }
       );
 
@@ -124,7 +167,9 @@ export const getRevenueAnalytics =
           })
         );
 
-      /* PIE CHART */
+      /* =========================
+         STATUS PIE CHART
+      ========================= */
 
       const invoiceStatusData = [
         {
@@ -146,11 +191,21 @@ export const getRevenueAnalytics =
         },
       ];
 
+      /* =========================
+         RESPONSE
+      ========================= */
+
       res.json({
         totals: {
-          totalRevenue,
+          grossRevenue,
           pendingRevenue,
           overdueRevenue,
+
+          totalExpenses,
+
+          netProfit,
+
+          monthlyBurnRate,
 
           paidInvoices:
             paidInvoices.length,
