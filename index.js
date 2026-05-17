@@ -8,6 +8,7 @@ import offerRoutes from "./routes/offerRoutes.js";
 import invoiceRoutes from "./routes/invoiceRoutes.js";
 import revenueRoutes from "./routes/revenueRoutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
+import supportRoutes from "./routes/supportRoutes.js";
 
 
 
@@ -31,7 +32,10 @@ app.use(
   "/api/expenses",
   expenseRoutes
 );
-
+app.use(
+  "/api/support",
+  supportRoutes
+);
 // Test route
 app.get("/", (req, res) => {
   res.send("API is running...");
