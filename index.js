@@ -12,6 +12,8 @@ import supportRoutes from "./routes/supportRoutes.js";
 import supportEmailRoutes from "./routes/supportEmailRoutes.js";
 import consultationRoutes from "./routes/consultationRoutes.js";
 
+import adminAuthRoutes from "./routes/adminAuthRoutes.js";
+
 
 
 dotenv.config();
@@ -21,6 +23,11 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+app.use(
+  "/api/admin/auth",
+  adminAuthRoutes
+);
 
 app.use("/api/case-studies", caseStudyRoutes);
 app.use("/api/clients", clientRoutes);
