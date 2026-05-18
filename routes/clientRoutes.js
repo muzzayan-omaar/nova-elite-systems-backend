@@ -2,6 +2,8 @@ import express from "express";
 import multer from "multer";
 import cloudinary from "../config/cloudinary.js";
 import Client from "../models/Client.js";
+import protectAdmin
+from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -9,7 +11,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 // GET all
-router.get("/", async (req, res) => {
+router.get("/", protectAdmin, async (req, res) => {
   const data = await Client.find();
   res.json(data);
 });
@@ -39,7 +41,7 @@ router.post("/", upload.single("logo"), async (req, res) => {
 });
 
 // DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", protectAdmin, async (req, res) => {
   await Client.findByIdAndDelete(req.params.id);
   res.json({ message: "Deleted" });
 });

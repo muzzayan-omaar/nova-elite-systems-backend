@@ -2,6 +2,8 @@ import express from "express";
 import multer from "multer";
 import cloudinary from "../config/cloudinary.js";
 import CaseStudy from "../models/CaseStudy.js";
+import protectAdmin
+from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -11,7 +13,7 @@ const upload = multer({ storage });
 
 
 // ✅ GET all
-router.get("/", async (req, res) => {
+router.get("/", protectAdmin, async (req, res) => {
   try {
     const data = await CaseStudy.find().sort({ createdAt: -1 });
     res.json(data);
@@ -56,7 +58,7 @@ router.post("/", upload.single("image"), async (req, res) => {
 
 
 // ✅ DELETE
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", protectAdmin, async (req, res) => {
   try {
     await CaseStudy.findByIdAndDelete(req.params.id);
     res.json({ message: "Deleted successfully" });

@@ -6,6 +6,8 @@ import {
   updateConsultationStatus,
   deleteConsultation,
 } from "../controllers/consultationController.js";
+import protectAdmin
+from "../middleware/authMiddleware.js";
 
 const router =
   express.Router();
@@ -21,6 +23,7 @@ router.post(
 
 router.get(
   "/",
+  protectAdmin,
   getConsultations
 );
 
@@ -28,6 +31,7 @@ router.get(
 
 router.patch(
   "/:id",
+  protectAdmin,
   updateConsultationStatus
 );
 
@@ -35,6 +39,7 @@ router.patch(
 
 router.delete(
   "/:id",
+  protectAdmin,
   deleteConsultation
 );
 

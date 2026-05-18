@@ -7,22 +7,26 @@ import {
   downloadInvoicePDF,
     updateInvoiceStatus,
 } from "../controllers/invoiceController.js";
+import protectAdmin
+from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 router.post("/", createInvoice);
+  
+router.get("/", protectAdmin, getInvoices);
 
-router.get("/", getInvoices);
-
-router.delete("/:id", deleteInvoice);
+router.delete("/:id", protectAdmin, deleteInvoice);
 
 router.put(
   "/:id/status",
+  protectAdmin,
   updateInvoiceStatus
 );
 
 router.get(
   "/pdf/:id",
+  protectAdmin,
   downloadInvoicePDF
 );
 

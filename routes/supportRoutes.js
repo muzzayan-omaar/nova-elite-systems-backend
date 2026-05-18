@@ -6,6 +6,8 @@ import {
   updateSupportTicket,
   deleteSupportTicket,
 } from "../controllers/supportController.js";
+import protectAdmin
+from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -18,18 +20,21 @@ router.post(
 /* GET ALL */
 router.get(
   "/",
+  protectAdmin,
   getSupportTickets
 );
 
 /* UPDATE */
 router.patch(
   "/:id",
+  protectAdmin,
   updateSupportTicket
 );
 
 /* DELETE */
 router.delete(
   "/:id",
+  protectAdmin,
   deleteSupportTicket
 );
 
