@@ -9,6 +9,7 @@ import invoiceRoutes from "./routes/invoiceRoutes.js";
 import revenueRoutes from "./routes/revenueRoutes.js";
 import expenseRoutes from "./routes/expenseRoutes.js";
 import supportRoutes from "./routes/supportRoutes.js";
+import supportEmailRoutes from "./routes/supportEmailRoutes.js";
 
 
 
@@ -35,6 +36,10 @@ app.use(
 app.use(
   "/api/support",
   supportRoutes
+);
+app.use(
+  "/api/support",
+  supportEmailRoutes
 );
 // Test route
 app.get("/", (req, res) => {
