@@ -13,6 +13,7 @@ import supportEmailRoutes from "./routes/supportEmailRoutes.js";
 import consultationRoutes from "./routes/consultationRoutes.js";
 
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
+import inquiryRoutes from "./routes/inquiryRoutes.js";
 
 
 
@@ -21,7 +22,15 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://nova-elite-systems.vercel.app",
+    ],
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 app.use(
@@ -29,6 +38,7 @@ app.use(
   adminAuthRoutes
 );
 
+app.use("/api/inquiries", inquiryRoutes);
 app.use("/api/case-studies", caseStudyRoutes);
 app.use("/api/clients", clientRoutes);
 app.use("/api/offers", offerRoutes);
