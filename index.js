@@ -14,6 +14,7 @@ import consultationRoutes from "./routes/consultationRoutes.js";
 
 import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import inquiryRoutes from "./routes/inquiryRoutes.js";
+import templateRoutes from "./routes/templateRoutes.js";
 
 
 
@@ -62,6 +63,10 @@ app.use(
 app.use(
   "/api/consultations",
   consultationRoutes
+);
+app.use(
+  "/api/templates",
+  templateRoutes
 );
 // Test route
 app.get("/", (req, res) => {
