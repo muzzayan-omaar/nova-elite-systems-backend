@@ -54,39 +54,21 @@ export const getTemplates =
 /**
  * GET SINGLE TEMPLATE
  */
-export const getTemplateBySlug =
-  async (req, res) => {
+export const getTemplateBySlug = async (req, res) => {
+  try {
+    const template = await Template.findOne({
+      slug: req.params.slug,
+    });
 
-    try {
-
-      const template =
-        await Template.findOne({
-          slug: req.params.slug,
-        });
-
-      if (!template) {
-
-        return res
-          .status(404)
-          .json({
-            message:
-              "Template not found",
-          });
-      }
-
-      res.status(200).json(
-        template
-      );
-
-    } catch (error) {
-
-      res.status(500).json({
-        message:
-          "Failed to fetch template",
-        error: error.message,
-      });
+    if (!template) {
+      return res.status(404).json({ message: "Not found" });
     }
-  };
+
+    res.json(template);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 /**
  * UPDATE TEMPLATE

@@ -8,46 +8,28 @@ import {
   deleteTemplate,
 } from "../controllers/templateController.js";
 
-import protectAdmin
-from "../middleware/authMiddleware.js";
+import protectAdmin from "../middleware/authMiddleware.js";
 
-const router =
-  express.Router();
+const router = express.Router();
 
 /**
  * PUBLIC
  */
 
-router.get(
-  "/",
-  getTemplates
-);
+// ALL templates
+router.get("/", getTemplates);
 
-router.get(
-  "/:slug",
-  getTemplateBySlug
-);
+// SINGLE by slug (FIXED)
+router.get("/slug/:slug", getTemplateBySlug);
 
 /**
  * ADMIN
  */
 
-router.post(
-  "/",
-  protectAdmin,
-  createTemplate
-);
+router.post("/", protectAdmin, createTemplate);
 
-router.put(
-  "/:id",
-  protectAdmin,
-  updateTemplate
-);
+router.put("/:id", protectAdmin, updateTemplate);
 
-router.delete(
-  "/:id",
-  protectAdmin,
-  deleteTemplate
-);
+router.delete("/:id", protectAdmin, deleteTemplate);
 
 export default router;
