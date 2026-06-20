@@ -1,5 +1,6 @@
 import ProjectScope from "../models/ProjectScope.model.js";
 import Quotation from "../models/Quotation.model.js";
+import Requirement from "../models/Requirement.model.js";
 
 export const createFromQuotation = async (req, res) => {
   try {
@@ -9,41 +10,37 @@ export const createFromQuotation = async (req, res) => {
       return res.status(404).json({ message: "Quotation not found" });
     }
 
-    const scope = await ProjectScope.create({
-      requirementId: quotation.requirementId,
-      quotationId: quotation._id,
+    const scope =
+  await ProjectScope.create({
+    requirementId: requirement._id,
 
-      clientName: quotation.clientName,
-      company: quotation.company,
-      email: quotation.email,
+    clientName: requirement.clientName,
+    company: requirement.company,
+    email: requirement.email,
 
-      scopeNumber: `NES-SCP-${Date.now().toString().slice(-5)}`,
+    scopeNumber: `NES-SCP-${Date.now()
+      .toString()
+      .slice(-5)}`,
 
-      projectTitle: quotation.projectTitle,
-      projectType: quotation.projectType,
+    projectTitle: requirement.projectTitle,
+    projectType: requirement.projectType,
 
-      objectives: "To deliver a complete solution as agreed in quotation.",
+    objectives: requirement.description,
 
-      deliverables: [
-        "UI/UX Design",
-        "Frontend Development",
-        "Backend API Integration",
-        "Deployment",
-      ],
+    deliverables: [],
 
-      includedFeatures: quotation.scope
-        ? quotation.scope.split(",")
-        : [],
+    includedFeatures: requirement.features || [],
 
-      excludedFeatures: [],
+    excludedFeatures: [],
 
-      timeline: quotation.timeline || "",
+    timeline: requirement.deadline || "",
 
-      assumptions:
-        "Client will provide required assets and timely feedback.",
+    assumptions: "",
 
-      notes: "",
-    });
+    notes: "",
+
+    status: "Draft",
+  });
 
     res.status(201).json(scope);
   } catch (err) {
@@ -87,10 +84,14 @@ export const createFromRequirement = async (
   res
 ) => {
   try {
+    console.log("Requirement ID:", req.params.id);
+
     const requirement =
       await Requirement.findById(
         req.params.id
       );
+
+    console.log("Requirement:", requirement);
 
     if (!requirement) {
       return res.status(404).json({
@@ -100,36 +101,24 @@ export const createFromRequirement = async (
 
     const scope =
       await ProjectScope.create({
-        clientName:
-          requirement.clientName,
-
-        company:
-          requirement.company,
-
-        email:
-          requirement.email,
-
-        projectTitle:
-          requirement.projectTitle,
-
-        projectType:
-          requirement.projectType,
-
-        objectives:
-          requirement.description,
-
-        includedFeatures:
-          requirement.features,
-
-        timeline:
-          requirement.deadline,
-
+        clientName: requirement.clientName,
+        company: requirement.company,
+        email: requirement.email,
+        projectTitle: requirement.projectTitle,
+        projectType: requirement.projectType,
+        objectives: requirement.description,
+        includedFeatures: requirement.features,
+        timeline: requirement.deadline,
         status: "Draft",
       });
+
+    console.log("Created Scope:", scope);
 
     res.status(201).json(scope);
 
   } catch (error) {
+    console.error(error);
+
     res.status(500).json({
       message: error.message,
     });
