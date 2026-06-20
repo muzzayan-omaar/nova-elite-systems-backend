@@ -22,6 +22,11 @@ const requirementSchema = new mongoose.Schema(
       type: String,
       default: "Pending",
     },
+    requirementId: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Requirement",
+  default: null,
+},
   },
   { timestamps: true }
 );
