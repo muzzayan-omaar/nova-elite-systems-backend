@@ -9,6 +9,9 @@ const requirementSchema = new mongoose.Schema(
 
     projectTitle: String,
     projectType: String,
+    pages: [String],
+referenceLinks: [String],
+notes: String,
 
     budget: Number,
 

@@ -4,10 +4,61 @@ import Requirement from "../models/Requirement.model.js";
 // CREATE
 export const createRequirement = async (req, res) => {
   try {
-    const data = await Requirement.create(req.body);
-    res.status(201).json(data);
+    const {
+      clientName,
+      company,
+      email,
+      phone,
+      projectTitle,
+      projectType,
+      budget,
+      features,
+      pages,
+      referenceLinks,
+      description,
+      deadline,
+      status,
+      notes,
+    } = req.body;
+
+    const requirement = await Requirement.create({
+      clientName,
+      company,
+      email,
+      phone,
+      projectTitle,
+      projectType,
+      budget: Number(budget || 0),
+
+      // 🔥 FIX: normalize arrays safely
+      features: Array.isArray(features)
+        ? features
+        : typeof features === "string"
+        ? features.split(",").map((f) => f.trim())
+        : [],
+
+      pages: Array.isArray(pages)
+        ? pages
+        : typeof pages === "string"
+        ? pages.split(",").map((p) => p.trim())
+        : [],
+
+      referenceLinks: Array.isArray(referenceLinks)
+        ? referenceLinks
+        : typeof referenceLinks === "string"
+        ? referenceLinks.split(",").map((r) => r.trim())
+        : [],
+
+      description,
+      deadline,
+      status: status || "Pending",
+      notes,
+    });
+
+    res.status(201).json(requirement);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("CREATE REQUIREMENT ERROR:", err);
+    res.status(500).json({ message: err.message });
   }
 };
 
