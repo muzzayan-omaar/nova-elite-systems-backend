@@ -1,6 +1,5 @@
 import Requirement from "../models/Requirement.model.js";
 
-import ProjectScope from "../models/ProjectScope.model.js";
 
 // CREATE
 export const createRequirement = async (req, res) => {
@@ -32,71 +31,3 @@ export const deleteRequirement = async (req, res) => {
   }
 };
 
-export const createFromRequirement = async (
-  req,
-  res
-) => {
-  try {
-
-    const requirement =
-      await Requirement.findById(
-        req.params.id
-      );
-
-    if (!requirement) {
-      return res.status(404).json({
-        message: "Requirement not found",
-      });
-    }
-
-    const scope =
-      await ProjectScope.create({
-        requirementId:
-          requirement._id,
-
-        clientName:
-          requirement.clientName,
-
-        company:
-          requirement.company,
-
-        email:
-          requirement.email,
-
-        projectTitle:
-          requirement.projectTitle,
-
-        projectType:
-          requirement.projectType,
-
-        objectives:
-          requirement.description,
-
-        deliverables:
-          requirement.features,
-
-        includedFeatures:
-          requirement.features,
-
-        excludedFeatures: [],
-
-        timeline:
-          requirement.deadline,
-
-        assumptions: "",
-
-        notes: "",
-
-        status: "Draft",
-      });
-
-    res.status(201).json(scope);
-
-  } catch (err) {
-    console.log(err);
-
-    res.status(500).json({
-      message: err.message,
-    });
-  }
-};

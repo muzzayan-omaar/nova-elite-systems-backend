@@ -3,7 +3,6 @@ import {
   createRequirement,
   getRequirements,
   deleteRequirement,
-  createFromRequirement,
 } from "../controllers/requirement.controller.js";
 
 const router = express.Router();
@@ -11,6 +10,5 @@ const router = express.Router();
 router.post("/", createRequirement);
 router.get("/", getRequirements);
 router.delete("/:id", deleteRequirement);
-router.post("/from-requirement/:id", createFromRequirement);
 
 export default router;

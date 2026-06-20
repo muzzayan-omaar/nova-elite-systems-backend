@@ -81,3 +81,57 @@ export const deleteScope = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+export const createFromRequirement = async (
+  req,
+  res
+) => {
+  try {
+    const requirement =
+      await Requirement.findById(
+        req.params.id
+      );
+
+    if (!requirement) {
+      return res.status(404).json({
+        message: "Requirement not found",
+      });
+    }
+
+    const scope =
+      await ProjectScope.create({
+        clientName:
+          requirement.clientName,
+
+        company:
+          requirement.company,
+
+        email:
+          requirement.email,
+
+        projectTitle:
+          requirement.projectTitle,
+
+        projectType:
+          requirement.projectType,
+
+        objectives:
+          requirement.description,
+
+        includedFeatures:
+          requirement.features,
+
+        timeline:
+          requirement.deadline,
+
+        status: "Draft",
+      });
+
+    res.status(201).json(scope);
+
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
