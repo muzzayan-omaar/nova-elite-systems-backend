@@ -8,7 +8,7 @@ const caseStudySchema = new mongoose.Schema({
   category: String,
   description: String,
   result: String,
-  image: String, // Cloudinary URL later
+  image: String, 
 }, { timestamps: true });
 
 export default mongoose.model("CaseStudy", caseStudySchema);

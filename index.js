@@ -16,6 +16,12 @@ import adminAuthRoutes from "./routes/adminAuthRoutes.js";
 import inquiryRoutes from "./routes/inquiryRoutes.js";
 import templateRoutes from "./routes/templateRoutes.js";
 
+import requirementRoutes from "./routes/requirement.routes.js";
+import quotationRoutes from "./routes/quotation.routes.js";
+import projectScopeRoutes from "./routes/projectScope.routes.js";
+import agreementRoutes from "./routes/agreement.routes.js";
+import handoverRoutes from "./routes/handover.routes.js";
+
 
 
 dotenv.config();
@@ -68,6 +74,11 @@ app.use(
   "/api/templates",
   templateRoutes
 );
+app.use("/api/requirements", requirementRoutes);
+app.use("/api/quotations", quotationRoutes);
+app.use("/api/project-scopes", projectScopeRoutes);
+app.use("/api/agreements", agreementRoutes);
+app.use("/api/handovers", handoverRoutes);
 // Test route
 app.get("/", (req, res) => {
   res.send("API is running...");
