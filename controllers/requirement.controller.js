@@ -1,5 +1,9 @@
 import Requirement from "../models/Requirement.model.js";
 
+const safeNumber = (value) => {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : 0;
+};
 
 // CREATE
 export const createRequirement = async (req, res) => {
@@ -28,7 +32,7 @@ export const createRequirement = async (req, res) => {
       phone,
       projectTitle,
       projectType,
-      budget: Number(budget || 0),
+      budget: safeNumber(budget),
 
       // 🔥 FIX: normalize arrays safely
       features: Array.isArray(features)
