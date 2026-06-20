@@ -3,6 +3,7 @@ import {
   createRequirement,
   getRequirements,
   deleteRequirement,
+  createFromRequirement,
 } from "../controllers/requirement.controller.js";
 
 const router = express.Router();
